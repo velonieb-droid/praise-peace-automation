@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/meta-preflight.yml'
       - 'scripts/validate_meta.py'
+      - 'scripts/publish_approved.py'
+      - 'posts/PP-2026-11-19.json'
   workflow_dispatch:
 
 permissions:
