@@ -130,9 +130,16 @@ def main() -> int:
 
         fb_count = assert_no_recent_duplicate(
             FACEBOOK_PAGE_ID, "posts", page_token,
-            "id,message,created_time,permalink_url", "message", caption, "Facebook",
+            "id,message,created_time,permalink_url", "message", caption, "Facebook posts",
         )
-        print(f"PASS: no exact-caption duplicate in the newest {fb_count} Facebook posts.")
+        photo_count = assert_no_recent_duplicate(
+            FACEBOOK_PAGE_ID, "photos", page_token,
+            "id,name,created_time,link", "name", caption, "Facebook uploaded photos",
+        )
+        print(
+            f"PASS: no exact-caption duplicate in the newest {fb_count} Facebook posts "
+            f"or {photo_count} uploaded Page photos."
+        )
         ig_count = assert_no_recent_duplicate(
             INSTAGRAM_USER_ID, "media", ig_token,
             "id,caption,timestamp,permalink", "caption", caption, "Instagram",
