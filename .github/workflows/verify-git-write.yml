@@ -1,0 +1,27 @@
+name: Verify GitHub Write Access (No Publishing)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-git-write.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  test-write:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Write harmless repository status marker
+        run: |
+          mkdir -p state
+          echo "GitHub Actions content write tested for Praise & Peace. This is not a social post." > state/.write-tested
+          git add state/.write-tested
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Verify bot can persist publishing status'
+          git push origin HEAD:main
