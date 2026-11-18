@@ -45,10 +45,22 @@ def call(method, path, token, args=None):
             err = json.loads(exc.read().decode("utf-8")).get("error", {})
             code = err.get("code", "unknown")
             subcode = err.get("error_subcode", "none")
-        except (ValueError, TypeError):
+            error_type = re.sub(r"[^A-Za-z0-9_.-]", "", str(err.get("type", "unknown")))[:60]
+            transient = str(err.get("is_transient", "unknown")).lower()
+            trace_id = re.sub(r"[^A-Za-z0-9]", "", str(err.get("fbtrace_id", "")))[:80] or "none"
+            message = str(err.get("message", ""))
+            message = re.sub(r"https?://\\S+", "[URL]", message)
+            message = message.replace(token, "[REDACTED_TOKEN]")
+            message = re.sub(r"[\\r\\n\\t]+", " ", message).strip()[:240]
+        except (ValueError, TypeError, AttributeError):
             code, subcode = "unknown", "none"
-        # Never log provider response bodies or URL query parameters; they may contain secrets.
-        raise Blocked(f"Meta {method} {path}: HTTP {exc.code}, code={code}, subcode={subcode}") from None
+            error_type, transient, trace_id, message = "unknown", "unknown", "none", ""
+        # Log only bounded diagnostic metadata; never log tokens, request bodies, or URL query strings.
+        raise Blocked(
+            f"Meta {method} {path}: HTTP {exc.code}, code={code}, subcode={subcode}, "
+            f"type={error_type}, transient={transient}, fbtrace_id={trace_id}, "
+            f"message={message or 'unavailable'}"
+        ) from None
     except (urllib.error.URLError, TimeoutError):
         raise Blocked(f"Meta {method} {path}: network error; outcome uncertain. Check platform before retrying.") from None
     except (ValueError, TypeError):
