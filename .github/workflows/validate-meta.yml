@@ -1,0 +1,26 @@
+name: Validate Meta Credentials
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: meta-credential-validation
+  cancel-in-progress: false
+
+jobs:
+  validate-meta:
+    name: Read-only Meta credential check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate Facebook and Instagram credentials
+        env:
+          META_FACEBOOK_PAGE_ACCESS_TOKEN: ${{ secrets.META_FACEBOOK_PAGE_ACCESS_TOKEN }}
+          META_INSTAGRAM_ACCESS_TOKEN: ${{ secrets.META_INSTAGRAM_ACCESS_TOKEN }}
+        run: python3 scripts/validate_meta.py
