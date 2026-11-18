@@ -168,7 +168,7 @@ def main():
         if fb.get("id") != FB_PAGE or fb.get("name") != "Praise and Peace":
             raise Blocked("Facebook Page identity check failed")
         ig = call("GET", IG_USER, ig_token, {"fields": "id,username"})
-        if ig.get("id") != IG_USER or str(ig.get("username", "")).lower() != "praiseandpeace":
+        if ig.get("id") != IG_USER or str(ig.get("username", "")).lower() != "praisenpeace":
             raise Blocked("Instagram identity check failed")
         print("PASS: approval, image checksum, public image URL, Page and Instagram identities")
 
