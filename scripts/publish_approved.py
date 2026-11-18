@@ -58,6 +58,38 @@ def call(method, path, token, args=None):
     return result
 
 
+def resolve_platform_tokens(system_token):
+    """Resolve a Page token from the system user and test the linked IG account."""
+    pages = call("GET", "me/accounts", system_token, {
+        "fields": "id,name,access_token,tasks,instagram_business_account",
+        "limit": "100",
+    })
+    page = next(
+        (item for item in pages.get("data", [])
+         if item.get("id") == FB_PAGE and item.get("name") == "Praise and Peace"),
+        None,
+    )
+    if not page or not page.get("access_token"):
+        raise Blocked("System-user token cannot retrieve the assigned Facebook Page access token")
+    page_token = page["access_token"]
+    tasks = page.get("tasks", [])
+    if tasks and not ({"CREATE_CONTENT", "MANAGE"} & set(tasks)):
+        raise Blocked("System user lacks Facebook Page content-creation permission")
+
+    ig_token = None
+    for candidate in (system_token, page_token):
+        try:
+            ig = call("GET", IG_USER, candidate, {"fields": "id,username"})
+        except Blocked:
+            continue
+        if ig.get("id") == IG_USER and str(ig.get("username", "")).lower() == "praisenpeace":
+            ig_token = candidate
+            break
+    if not ig_token:
+        raise Blocked("System-user token and linked Page token could not verify the assigned Instagram account")
+    return page_token, ig_token
+
+
 def validate(post_id):
     if not re.fullmatch(r"PP-\d{4}-\d{2}-\d{2}", post_id):
         raise Blocked("Invalid post ID")
@@ -161,8 +193,8 @@ def main():
     try:
         post_id = os.environ.get("POST_ID", "PP-2026-11-19")
         manifest, public_url = validate(post_id)
-        fb_token = need("META_FACEBOOK_PAGE_ACCESS_TOKEN")
-        ig_token = need("META_INSTAGRAM_ACCESS_TOKEN")
+        system_token = need("META_SYSTEM_USER_ACCESS_TOKEN")
+        fb_token, ig_token = resolve_platform_tokens(system_token)
         public_image_check(public_url, manifest["image"]["sha256"])
 
         fb = call("GET", FB_PAGE, fb_token, {"fields": "id,name"})
