@@ -49,9 +49,9 @@ def call(method, path, token, args=None):
             transient = str(err.get("is_transient", "unknown")).lower()
             trace_id = re.sub(r"[^A-Za-z0-9]", "", str(err.get("fbtrace_id", "")))[:80] or "none"
             message = str(err.get("message", ""))
-            message = re.sub(r"https?://\\S+", "[URL]", message)
+            message = re.sub(r"https?://[^ ]+", "[URL]", message)
             message = message.replace(token, "[REDACTED_TOKEN]")
-            message = re.sub(r"[\\r\\n\\t]+", " ", message).strip()[:240]
+            message = message.replace(chr(13), " ").replace(chr(10), " ").replace(chr(9), " ").strip()[:240]
         except (ValueError, TypeError, AttributeError):
             code, subcode = "unknown", "none"
             error_type, transient, trace_id, message = "unknown", "unknown", "none", ""
