@@ -78,6 +78,8 @@ def validate(post_id):
     caption = data.get("caption", "")
     if not isinstance(caption, str) or not 100 <= len(caption) <= 2100:
         raise Blocked("Approved caption is missing or invalid")
+    if hashlib.sha256(caption.encode("utf-8")).hexdigest() != data.get("caption_sha256"):
+        raise Blocked("Caption has changed since approval; publishing requires new approval")
     image = data.get("image", {})
     path = ROOT / str(image.get("path", ""))
     if (not path.is_file() or path.resolve().parent != (ROOT / "images").resolve()
