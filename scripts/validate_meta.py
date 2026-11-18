@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only validation of Praise & Peace Meta publishing credentials.
-
-This script never creates or publishes content. It verifies that each token can
-read the expected Facebook Page or Instagram professional account.
-"""
+"""Read-only validation of the Meta system-user token and assigned social assets."""
 from __future__ import annotations
 
 import json
@@ -25,56 +21,35 @@ class MetaApiError(RuntimeError):
     pass
 
 
-def graph_get(path: str, token: str, fields: str) -> dict:
-    query = urllib.parse.urlencode({"fields": fields})
-    url = f"{GRAPH_BASE}/{path.lstrip('/')}?{query}"
+def graph_get(path: str, token: str, fields: str | None = None, extra: dict | None = None) -> dict:
+    params = dict(extra or {})
+    if fields:
+        params["fields"] = fields
+    query = urllib.parse.urlencode(params)
+    url = f"{GRAPH_BASE}/{path.lstrip('/')}" + (f"?{query}" if query else "")
     request = urllib.request.Request(
-        url,
-        method="GET",
-        headers={
-            "Authorization": f"Bearer {token}",
-            "Accept": "application/json",
-            "User-Agent": "praise-peace-meta-validator/1.0",
-        },
+        url, method="GET",
+        headers={"Authorization": f"Bearer {token}", "Accept": "application/json",
+                 "User-Agent": "praise-peace-meta-validator/1.0"},
     )
-
     try:
         with urllib.request.urlopen(request, timeout=25) as response:
-            payload = response.read().decode("utf-8")
+            data = json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         try:
-            body = json.loads(exc.read().decode("utf-8"))
-            error = body.get("error", {})
-            message = str(error.get("message", "Meta API request failed"))
-            message = message.replace(token, "[REDACTED]")
+            error = json.loads(exc.read().decode("utf-8")).get("error", {})
             code = error.get("code", "unknown")
             subcode = error.get("error_subcode")
-            details = f" (code={code}"
-            if subcode is not None:
-                details += f", subcode={subcode}"
-            details += ")"
+            details = f" (code={code}" + (f", subcode={subcode}" if subcode is not None else "") + ")"
         except Exception:
-            message = "Meta API returned an unreadable error response"
             details = ""
-        raise MetaApiError(f"HTTP {exc.code}: {message}{details}") from None
-    except urllib.error.URLError:
-        raise MetaApiError("Network error while contacting Meta Graph API") from None
-    except TimeoutError:
-        raise MetaApiError("Meta Graph API request timed out") from None
-
-    try:
-        data = json.loads(payload)
-    except json.JSONDecodeError:
+        raise MetaApiError(f"HTTP {exc.code}{details}") from None
+    except (urllib.error.URLError, TimeoutError):
+        raise MetaApiError("Network error contacting Meta Graph API") from None
+    except (json.JSONDecodeError, UnicodeDecodeError):
         raise MetaApiError("Meta Graph API returned invalid JSON") from None
-
-    if "error" in data:
-        error = data["error"]
-        message = str(error.get("message", "Meta API request failed"))
-        message = message.replace(token, "[REDACTED]")
-        raise MetaApiError(
-            f"{message} (code={error.get('code', 'unknown')})"
-        )
-
+    if not isinstance(data, dict) or "error" in data:
+        raise MetaApiError("Meta Graph API returned an error")
     return data
 
 
@@ -87,40 +62,47 @@ def require_secret(name: str) -> str:
 
 def main() -> int:
     try:
-        facebook_token = require_secret("META_FACEBOOK_PAGE_ACCESS_TOKEN")
-        instagram_token = require_secret("META_INSTAGRAM_ACCESS_TOKEN")
+        system_token = require_secret("META_SYSTEM_USER_ACCESS_TOKEN")
 
-        page = graph_get(
-            FACEBOOK_PAGE_ID,
-            facebook_token,
-            "id,name",
+        pages = graph_get(
+            "me/accounts", system_token,
+            "id,name,access_token,tasks,instagram_business_account",
+            {"limit": "100"},
         )
-        if page.get("id") != FACEBOOK_PAGE_ID:
-            raise MetaApiError("Facebook token returned an unexpected Page ID")
-        if page.get("name") != EXPECTED_PAGE_NAME:
-            raise MetaApiError(
-                f"Facebook token resolved to an unexpected Page name: {page.get('name', 'unknown')}"
-            )
-        print(f"PASS: Facebook Page token verified for {page['name']} ({page['id']}).")
-
-        instagram = graph_get(
-            INSTAGRAM_USER_ID,
-            instagram_token,
-            "id,username",
+        page = next(
+            (item for item in pages.get("data", [])
+             if item.get("id") == FACEBOOK_PAGE_ID and item.get("name") == EXPECTED_PAGE_NAME),
+            None,
         )
-        if instagram.get("id") != INSTAGRAM_USER_ID:
-            raise MetaApiError("Instagram token returned an unexpected account ID")
-        username = instagram.get("username", "")
-        if username.lower() != EXPECTED_IG_USERNAME:
-            raise MetaApiError(
-                f"Instagram token resolved to an unexpected username: @{username or 'unknown'}"
-            )
-        print(f"PASS: Instagram token verified for @{username} ({instagram['id']}).")
+        if not page or not page.get("access_token"):
+            raise MetaApiError("System-user token cannot retrieve the expected Facebook Page access token")
+        page_token = page["access_token"]
+        tasks = page.get("tasks", [])
+        if tasks and not ({"CREATE_CONTENT", "MANAGE"} & set(tasks)):
+            raise MetaApiError("System user lacks the Facebook Page content-creation task")
 
-        print("PASS: Both Meta credentials can read the expected accounts.")
+        verified_page = graph_get(FACEBOOK_PAGE_ID, page_token, "id,name")
+        if verified_page.get("id") != FACEBOOK_PAGE_ID or verified_page.get("name") != EXPECTED_PAGE_NAME:
+            raise MetaApiError("Resolved Facebook Page token returned an unexpected Page identity")
+        print(f"PASS: system-user token resolved Facebook Page {EXPECTED_PAGE_NAME} ({FACEBOOK_PAGE_ID}).")
+
+        ig = None
+        ig_auth_method = None
+        for label, candidate in (("system-user token", system_token), ("Page token", page_token)):
+            try:
+                result = graph_get(INSTAGRAM_USER_ID, candidate, "id,username")
+                if result.get("id") == INSTAGRAM_USER_ID and str(result.get("username", "")).lower() == EXPECTED_IG_USERNAME:
+                    ig = result
+                    ig_auth_method = label
+                    break
+            except MetaApiError:
+                continue
+        if not ig:
+            raise MetaApiError("Neither system-user nor linked Page token can verify the expected Instagram account")
+
+        print(f"PASS: Instagram account @{ig['username']} ({ig['id']}) verified using {ig_auth_method}.")
         print("READ-ONLY CHECK COMPLETE: No content was created or published.")
         return 0
-
     except MetaApiError as exc:
         print(f"VALIDATION FAILED: {exc}", file=sys.stderr)
         return 1
