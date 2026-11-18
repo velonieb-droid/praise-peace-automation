@@ -1,4 +1,5 @@
 name: Meta Connection Preflight (Read Only)
+run-name: Read-only Meta credential validation
 
 on:
   push:
