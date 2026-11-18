@@ -1,6 +1,10 @@
 name: Publish Approved Praise and Peace Post
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'posts/PP-2026-11-19.json'
   workflow_dispatch:
     inputs:
       post_id:
