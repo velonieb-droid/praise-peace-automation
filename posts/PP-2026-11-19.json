@@ -12,12 +12,15 @@
     "instagram_user": "17841479478148076"
   },
   "image": {
-    "path": "images/PP-2026-11-19.jpg",
     "sha256": "862fbb98d4a048b54d93f68d63dff84398107962c117c65c4a0e415d16bd4c63",
     "format": "JPEG",
     "width": 1080,
     "height": 1080,
-    "alt_text": "Praise and Peace: tanawin ng pagsikat ng araw, bukas na Biblia, at paalala na patuloy na manalangin at magpasalamat."
+    "alt_text": "Praise and Peace: tanawin ng pagsikat ng araw, bukas na Biblia, at paalala na patuloy na manalangin at magpasalamat.",
+    "drive_file_id": "1hJ7YzlQEL3mkbmVu3Pbqk9WRH6xVYY2M",
+    "drive_view_url": "https://drive.google.com/file/d/1hJ7YzlQEL3mkbmVu3Pbqk9WRH6xVYY2M/view?usp=drivesdk",
+    "public_delivery_url": null,
+    "hosting_status": "uploaded_to_drive_private_pending_public_delivery_test"
   },
   "bible_reference": "1 Tesalonica 5:16–18 (ABTAG2001)",
   "bible_text_kind": "Tagalog paraphrase, not a verbatim ABTAG2001 quotation",
