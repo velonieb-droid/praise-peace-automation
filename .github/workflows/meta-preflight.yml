@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/meta-preflight.yml'
+      - 'scripts/validate_meta.py'
   workflow_dispatch:
 
 permissions:
