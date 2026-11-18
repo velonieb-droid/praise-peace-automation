@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+from pathlib import Path
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -60,6 +61,22 @@ def require_secret(name: str) -> str:
     return value
 
 
+def assert_no_recent_duplicate(node_id: str, edge: str, token: str, fields: str,
+                               caption_field: str, caption: str, platform: str) -> int:
+    payload = graph_get(f"{node_id}/{edge}", token, fields, {"limit": "50"})
+    records = payload.get("data")
+    if not isinstance(records, list):
+        raise MetaApiError(f"{platform} recent-post check returned invalid data")
+    for record in records:
+        existing = record.get(caption_field, "")
+        if isinstance(existing, str) and existing.strip() == caption.strip():
+            raise MetaApiError(
+                f"Matching approved caption already exists in recent {platform} content "
+                f"(media ID {record.get('id', 'unknown')}); publication blocked"
+            )
+    return len(records)
+
+
 def main() -> int:
     try:
         system_token = require_secret("META_SYSTEM_USER_ACCESS_TOKEN")
@@ -88,19 +105,39 @@ def main() -> int:
 
         ig = None
         ig_auth_method = None
+        ig_token = None
         for label, candidate in (("system-user token", system_token), ("Page token", page_token)):
             try:
                 result = graph_get(INSTAGRAM_USER_ID, candidate, "id,username")
                 if result.get("id") == INSTAGRAM_USER_ID and str(result.get("username", "")).lower() == EXPECTED_IG_USERNAME:
                     ig = result
                     ig_auth_method = label
+                    ig_token = candidate
                     break
             except MetaApiError:
                 continue
-        if not ig:
+        if not ig or not ig_token:
             raise MetaApiError("Neither system-user nor linked Page token can verify the expected Instagram account")
 
         print(f"PASS: Instagram account @{ig['username']} ({ig['id']}) verified using {ig_auth_method}.")
+
+        manifest = json.loads(
+            Path("posts/PP-2026-11-19.json").read_text(encoding="utf-8")
+        )
+        caption = manifest.get("caption", "")
+        if not isinstance(caption, str) or not caption.strip():
+            raise MetaApiError("Approved caption is missing from the release manifest")
+
+        fb_count = assert_no_recent_duplicate(
+            FACEBOOK_PAGE_ID, "posts", page_token,
+            "id,message,created_time,permalink_url", "message", caption, "Facebook",
+        )
+        print(f"PASS: no exact-caption duplicate in the newest {fb_count} Facebook posts.")
+        ig_count = assert_no_recent_duplicate(
+            INSTAGRAM_USER_ID, "media", ig_token,
+            "id,caption,timestamp,permalink", "caption", caption, "Instagram",
+        )
+        print(f"PASS: no exact-caption duplicate in the newest {ig_count} Instagram media items.")
         print("READ-ONLY CHECK COMPLETE: No content was created or published.")
         return 0
     except MetaApiError as exc:
