@@ -18,7 +18,7 @@ GRAPH_BASE = f"https://graph.facebook.com/{GRAPH_VERSION}"
 FACEBOOK_PAGE_ID = "879577415240432"
 EXPECTED_PAGE_NAME = "Praise and Peace"
 INSTAGRAM_USER_ID = "17841479478148076"
-EXPECTED_IG_USERNAME = "praiseandpeace"
+EXPECTED_IG_USERNAME = "praisenpeace"
 
 
 class MetaApiError(RuntimeError):
