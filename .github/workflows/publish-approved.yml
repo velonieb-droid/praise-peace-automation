@@ -1,0 +1,38 @@
+name: Publish Approved Praise and Peace Post
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'images/PP-2026-11-19.jpg'
+  workflow_dispatch:
+    inputs:
+      post_id:
+        description: Explicit approved post ID
+        required: true
+        default: PP-2026-11-19
+
+permissions:
+  contents: write
+
+concurrency:
+  group: praise-peace-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out release and ledger
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Validate and publish approved image plus caption
+        env:
+          POST_ID: ${{ github.event.inputs.post_id || 'PP-2026-11-19' }}
+          META_FACEBOOK_PAGE_ACCESS_TOKEN: ${{ secrets.META_FACEBOOK_PAGE_ACCESS_TOKEN }}
+          META_INSTAGRAM_ACCESS_TOKEN: ${{ secrets.META_INSTAGRAM_ACCESS_TOKEN }}
+        run: python3 scripts/publish_approved.py
