@@ -14,7 +14,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 API_BASE = "https://graph.facebook.com/v27.0"
-REPO = "velonieb-droid/praise-peace-automation"
 FB_PAGE = "879577415240432"
 IG_USER = "17841479478148076"
 
@@ -81,18 +80,20 @@ def validate(post_id):
     if hashlib.sha256(caption.encode("utf-8")).hexdigest() != data.get("caption_sha256"):
         raise Blocked("Caption has changed since approval; publishing requires new approval")
     image = data.get("image", {})
-    path = ROOT / str(image.get("path", ""))
-    if (not path.is_file() or path.resolve().parent != (ROOT / "images").resolve()
-            or path.suffix.lower() != ".jpg"):
-        raise Blocked("Exact approved JPEG file must be in images/")
-    contents = path.read_bytes()
-    if not contents.startswith(b"\xff\xd8\xff"):
-        raise Blocked("Image has invalid JPEG header")
-    if hashlib.sha256(contents).hexdigest() != image.get("sha256"):
-        raise Blocked("Image SHA-256 does not match approved asset")
+    if not re.fullmatch(r"[A-Za-z0-9_-]{15,}", str(image.get("drive_file_id", ""))):
+        raise Blocked("Approved Google Drive file ID is missing or invalid")
+    if not re.fullmatch(r"[0-9a-f]{64}", str(image.get("sha256", ""))):
+        raise Blocked("Approved image SHA-256 is missing or invalid")
     if (image.get("width"), image.get("height")) != (1080, 1080):
-        raise Blocked("Image metadata must be 1080 by 1080")
-    return data, path
+        raise Blocked("Approved image metadata must be 1080 by 1080")
+    public_url = str(image.get("public_delivery_url") or "").strip()
+    if not public_url:
+        raise Blocked("Public direct JPEG delivery URL is not configured or verified")
+    parsed = urllib.parse.urlsplit(public_url)
+    if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
+        raise Blocked("Public image delivery URL must use safe public HTTPS")
+    # Both FB and Instagram fetch the image anonymously. Never use a Drive preview page.
+    return data, public_url
 
 
 def public_image_check(url, expected):
@@ -159,11 +160,9 @@ def save_state(post_id, state):
 def main():
     try:
         post_id = os.environ.get("POST_ID", "PP-2026-11-19")
-        manifest, path = validate(post_id)
+        manifest, public_url = validate(post_id)
         fb_token = need("META_FACEBOOK_PAGE_ACCESS_TOKEN")
         ig_token = need("META_INSTAGRAM_ACCESS_TOKEN")
-        sha = need("GITHUB_SHA")
-        public_url = f"https://raw.githubusercontent.com/{REPO}/{sha}/{path.relative_to(ROOT).as_posix()}"
         public_image_check(public_url, manifest["image"]["sha256"])
 
         fb = call("GET", FB_PAGE, fb_token, {"fields": "id,name"})
