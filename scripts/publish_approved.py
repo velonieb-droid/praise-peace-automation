@@ -143,30 +143,34 @@ def public_image_check(url, expected):
 
 
 def recent_duplicate(platform, token, caption):
+    """Check the newest 50 items only; the durable release ledger is the primary idempotency guard.
+
+    Do not walk the entire Page/account archive: Meta limits and ranks historical
+    Page results, and an unbounded scan can block a valid first-time publication.
+    A just-published item (including a publish whose response was interrupted)
+    should be among the newest 50 when this workflow is retried.
+    """
     ident = FB_PAGE if platform == "facebook" else IG_USER
     edge = "posts" if platform == "facebook" else "media"
-    fields = "id,message,permalink_url" if platform == "facebook" else "id,caption,permalink"
-    after = None
-    for _ in range(12):
-        opts = {"fields": fields, "limit": "50"}
-        if after:
-            opts["after"] = after
-        payload = call("GET", f"{ident}/{edge}", token, opts)
-        for record in payload.get("data", []):
-            body = record.get("message", record.get("caption", ""))
-            if body.strip() == caption.strip():
-                return {
-                    "status": "published", "id": str(record["id"]),
-                    "url": record.get("permalink_url", record.get("permalink", "")),
-                    "source": "duplicate_check",
-                }
-        if not payload.get("paging", {}).get("next"):
-            return None
-        cursor = payload.get("paging", {}).get("cursors", {}).get("after")
-        if not cursor or cursor == after:
-            raise Blocked(f"{platform}: pagination did not advance; manual verification needed")
-        after = cursor
-    raise Blocked(f"{platform}: duplicate scan exceeded 600 entries; manual verification needed")
+    fields = (
+        "id,message,created_time,permalink_url"
+        if platform == "facebook"
+        else "id,caption,timestamp,permalink"
+    )
+    payload = call("GET", f"{ident}/{edge}", token, {"fields": fields, "limit": "50"})
+    records = payload.get("data")
+    if not isinstance(records, list):
+        raise Blocked(f"{platform}: duplicate check returned an invalid data set")
+    for record in records:
+        body = record.get("message", record.get("caption", ""))
+        if isinstance(body, str) and body.strip() == caption.strip():
+            return {
+                "status": "published", "id": str(record["id"]),
+                "url": record.get("permalink_url", record.get("permalink", "")),
+                "source": "recent_duplicate_check",
+                "created_time": record.get("created_time", record.get("timestamp", "")),
+            }
+    return None
 
 
 def save_state(post_id, state):
