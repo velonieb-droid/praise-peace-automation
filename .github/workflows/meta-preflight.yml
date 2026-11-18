@@ -1,0 +1,23 @@
+name: Meta Connection Preflight (Read Only)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/meta-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  read-only-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm expected Facebook and Instagram identity
+        env:
+          META_FACEBOOK_PAGE_ACCESS_TOKEN: ${{ secrets.META_FACEBOOK_PAGE_ACCESS_TOKEN }}
+          META_INSTAGRAM_ACCESS_TOKEN: ${{ secrets.META_INSTAGRAM_ACCESS_TOKEN }}
+        run: python3 scripts/validate_meta.py
