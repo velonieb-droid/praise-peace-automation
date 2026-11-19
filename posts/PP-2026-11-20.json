@@ -1,0 +1,30 @@
+{
+  "post_id": "PP-2026-11-20",
+  "status": "approved",
+  "approval_phrase": "APPROVED PP-2026-11-20",
+  "approval_date": "2026-11-20",
+  "approved_platforms": [
+    "facebook",
+    "instagram"
+  ],
+  "platform_ids": {
+    "facebook_page": "879577415240432",
+    "instagram_user": "17841479478148076"
+  },
+  "image": {
+    "sha256": "0154a304de17711d5bdf0dca142a027f44bf1bb2aee893ede1e1dcd977695e1d",
+    "format": "JPEG",
+    "width": 1080,
+    "height": 1080,
+    "alt_text": "Praise and Peace: bukas na Biblia sa maaraw na mesa, at paalala mula sa Kawikaan 15:1 na maging mahinahon sa pananalita.",
+    "drive_file_id": "1zJ4UG7N-zBhBGdolf_9Z59FH1VrNb2K_",
+    "drive_view_url": "https://drive.google.com/file/d/1zJ4UG7N-zBhBGdolf_9Z59FH1VrNb2K_/view?usp=drivesdk",
+    "public_delivery_url": "https://drive.google.com/uc?export=download&id=1zJ4UG7N-zBhBGdolf_9Z59FH1VrNb2K_",
+    "hosting_status": "uploaded_to_public_shared_folder_awaiting_anonymous_JPEG_checksum_test"
+  },
+  "bible_reference": "Kawikaan 15:1–4 (ABTAG2001)",
+  "bible_text_kind": "Tagalog paraphrase on image; not a verbatim ABTAG2001 quotation",
+  "caption": "💛 ANG PAGIGING MAHINAHON AY HINDI KAHINAAN\n\nMay mga pagkakataong nasasaktan tayo sa mga salita ng ibang tao. Minsan, gusto nating sumagot agad, ipagtanggol ang ating sarili, o patunayang tayo ang tama.\n\nNgunit kapag galit ang pinairal natin, madalas ay lalo lamang lumalala ang hindi pagkakaunawaan.\n\n📖 Sa Kawikaan 15:1, itinuturo ng Biblia na ang malumanay na sagot ay nakatutulong upang humupa ang galit, samantalang ang magaspang na pananalita ay maaari itong palalain.\n\nHindi ibig sabihin nito na dapat nating tiisin ang lahat ng maling ginagawa sa atin. Maaari tayong magsabi ng katotohanan, magtakda ng hangganan, at ituwid ang mali nang may paggalang.\n\nTandaan: Hindi mo kailangang manalo sa bawat pagtatalo. Mas mahalagang matutong magsalita nang may karunungan, pagpipigil sa sarili, at pag-ibig.\n\nNgayong araw, bago ka sumagot sa isang taong nakasakit sa iyo, subukan munang makinig, mag-isip, at manalangin.\n\n🙏 Panalangin: Panginoon, bantayan Mo ang aking puso at mga salita. Turuan Mo akong maging mahinahon, mapagpakumbaba, at maunawain. Amen.\n\n📖 Kawikaan 15:1–4 | Ang Biblia, 2001 (ABTAG2001)\n\n💬 Pagnilayan: May pagkakataon ba na mas pinili mong magalit kaysa umunawa?\n\n#PraiseAndPeace #SalitaNgDiyos #Karunungan #Kapayapaan #BuhayKristiyano",
+  "caption_sha256": "94404d4344f1a407148f70b7a88cb0312c2dcfb20cf7fe80d5172105f899b0bf",
+  "release_ready": false
+}
