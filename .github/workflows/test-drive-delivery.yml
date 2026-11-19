@@ -1,4 +1,4 @@
-name: Test Google Drive Public Image Delivery
+name: Test Approved Google Drive Image Delivery
 
 on:
   push:
@@ -15,33 +15,38 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Test approved public Google Drive image without credentials
+      - name: Test anonymous JPEG access for approved assets
         shell: bash
         run: |
           python3 - <<'PY'
           import hashlib
-          import urllib.error
-          import urllib.parse
           import urllib.request
-          file_id = "1hJ7YzlQEL3mkbmVu3Pbqk9WRH6xVYY2M"
-          expected_sha = "862fbb98d4a048b54d93f68d63dff84398107962c117c65c4a0e415d16bd4c63"
-          candidates = {
-            "drive_uc_download": "https://drive.google.com/uc?export=download&id=" + file_id,
-            "drive_uc_view": "https://drive.google.com/uc?export=view&id=" + file_id,
-            "drive_thumbnail": "https://drive.google.com/thumbnail?id=" + file_id + "&sz=w1080",
-            "drive_view": "https://drive.google.com/file/d/" + file_id + "/view",
+
+          images = {
+              "PP-2026-11-19": {
+                  "id": "1hJ7YzlQEL3mkbmVu3Pbqk9WRH6xVYY2M",
+                  "sha256": "862fbb98d4a048b54d93f68d63dff84398107962c117c65c4a0e415d16bd4c63",
+              },
+              "PP-2026-11-20": {
+                  "id": "1zJ4UG7N-zBhBGdolf_9Z59FH1VrNb2K_",
+                  "sha256": "0154a304de17711d5bdf0dca142a027f44bf1bb2aee893ede1e1dcd977695e1d",
+              }
           }
-          for name, url in candidates.items():
-            print("Testing", name, flush=True)
-            for agent in ("Mozilla/5.0", "facebookexternalhit/1.1"):
-              try:
-                req = urllib.request.Request(url, headers={"User-Agent": agent})
-                with urllib.request.urlopen(req, timeout=20) as resp:
-                  b = resp.read(5000000)
-                  mime = resp.headers.get("Content-Type", "")
-                  print(name, agent, "status", resp.status, "mime", mime, "size", len(b),
-                        "jpeg", b.startswith(bytes.fromhex("ffd8ff")),
-                        "checksum_match", hashlib.sha256(b).hexdigest() == expected_sha, flush=True)
-              except Exception as e:
-                print(name, agent, "request failed", type(e).__name__, flush=True)
+
+          for post_id, image in images.items():
+              url = "https://drive.google.com/uc?export=download&id=" + image["id"]
+              for agent in ("Mozilla/5.0", "facebookexternalhit/1.1"):
+                  req = urllib.request.Request(url, headers={"User-Agent": agent})
+                  with urllib.request.urlopen(req, timeout=30) as response:
+                      content = response.read(6_000_001)
+                      mime = response.headers.get("Content-Type", "").lower()
+                  valid = (mime.startswith("image/jpeg")
+                           and content.startswith(bytes.fromhex("ffd8ff"))
+                           and len(content) < 6_000_001
+                           and hashlib.sha256(content).hexdigest() == image["sha256"])
+                  print(post_id, "agent", agent, "mime", mime,
+                        "size", len(content), "checksum_match", valid, flush=True)
+                  if not valid:
+                      raise SystemExit("BLOCKED: Invalid or inaccessible public image for " + post_id)
+          print("PASS: exact approved JPEGs are anonymously downloadable for both user agents")
           PY
