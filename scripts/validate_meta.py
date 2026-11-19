@@ -132,23 +132,39 @@ def main() -> int:
         if not isinstance(caption, str) or not caption.strip():
             raise MetaApiError("Approved caption is missing from the release manifest")
 
-        fb_count = assert_no_recent_duplicate(
-            FACEBOOK_PAGE_ID, "posts", page_token,
-            "id,message,created_time,permalink_url", "message", caption, "Facebook posts",
-        )
-        photo_count = assert_no_recent_duplicate(
-            FACEBOOK_PAGE_ID, "photos", page_token,
-            "id,name,created_time,link", "name", caption, "Facebook uploaded photos",
-        )
-        print(
-            f"PASS: no exact-caption duplicate in the newest {fb_count} Facebook posts "
-            f"or {photo_count} uploaded Page photos."
-        )
-        ig_count = assert_no_recent_duplicate(
-            INSTAGRAM_USER_ID, "media", ig_token,
-            "id,caption,timestamp,permalink", "caption", caption, "Instagram",
-        )
-        print(f"PASS: no exact-caption duplicate in the newest {ig_count} Instagram media items.")
+        state_path = Path("state") / (post_id + ".json")
+        state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else {}
+        if state and state.get("post_id") != post_id:
+            raise MetaApiError("Publishing ledger belongs to an unexpected post")
+
+        if state.get("facebook", {}).get("status") == "published":
+            if not state["facebook"].get("id"):
+                raise MetaApiError("Facebook ledger is missing a media ID")
+            print("PASS: Facebook publication recorded in ledger for approved release")
+        else:
+            fb_count = assert_no_recent_duplicate(
+                FACEBOOK_PAGE_ID, "posts", page_token,
+                "id,message,created_time,permalink_url", "message", caption, "Facebook posts",
+            )
+            photo_count = assert_no_recent_duplicate(
+                FACEBOOK_PAGE_ID, "photos", page_token,
+                "id,name,created_time,link", "name", caption, "Facebook uploaded photos",
+            )
+            print(
+                f"PASS: no exact-caption duplicate among {fb_count} Facebook posts "
+                f"or {photo_count} uploaded Page photos."
+            )
+
+        if state.get("instagram", {}).get("status") == "published":
+            if not state["instagram"].get("id"):
+                raise MetaApiError("Instagram ledger is missing a media ID")
+            print("PASS: Instagram publication recorded in ledger for approved release")
+        else:
+            ig_count = assert_no_recent_duplicate(
+                INSTAGRAM_USER_ID, "media", ig_token,
+                "id,caption,timestamp,permalink", "caption", caption, "Instagram",
+            )
+            print(f"PASS: no exact-caption duplicate in the newest {ig_count} Instagram media items.")
         print("READ-ONLY CHECK COMPLETE: No content was created or published.")
         return 0
     except MetaApiError as exc:
