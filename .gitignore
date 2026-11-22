@@ -1,0 +1,39 @@
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+credentials.json
+credentials.*.json
+secrets.json
+secrets.*.json
+*service-account*.json
+
+# Local tools and generated artifacts
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage/
+dist/
+build/
+.tmp/
+tmp/
+temp/
+*.log
+logs/
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+.idea/
+
+# Do not ignore approved posts, publishing state, or GitHub workflows.
