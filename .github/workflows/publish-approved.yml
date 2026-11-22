@@ -4,14 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       post_id:
-        description: Explicit approved post ID
+        description: Explicit approved post ID (PP-YYYY-MM-DD)
         required: true
         type: string
-  push:
-    branches:
-      - main
-    paths:
-      - release-triggers/PP-2026-11-22.txt
 
 permissions:
   contents: write
@@ -33,6 +28,6 @@ jobs:
           persist-credentials: true
       - name: Validate and publish approved image plus caption
         env:
-          POST_ID: ${{ github.event_name == 'push' && 'PP-2026-11-22' || inputs.post_id }}
+          POST_ID: ${{ inputs.post_id }}
           META_SYSTEM_USER_ACCESS_TOKEN: ${{ secrets.META_SYSTEM_USER_ACCESS_TOKEN }}
         run: python3 scripts/publish_approved.py
