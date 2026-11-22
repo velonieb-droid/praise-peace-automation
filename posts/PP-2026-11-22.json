@@ -1,0 +1,35 @@
+{
+  "post_id": "PP-2026-11-22",
+  "status": "approved",
+  "approval_phrase": "APPROVED PP-2026-11-22",
+  "approval_date": "2026-11-22",
+  "approved_platforms": [
+    "facebook",
+    "instagram"
+  ],
+  "platform_ids": {
+    "facebook_page": "879577415240432",
+    "instagram_user": "17841479478148076"
+  },
+  "image": {
+    "sha256": "055e05c60552dde2e08ee213f0442a55e6783f67614cbd9394c3b0e3092f9fee",
+    "format": "JPEG",
+    "width": 1080,
+    "height": 1080,
+    "alt_text": "Praise & Peace: bukas na Biblia sa mesa, tasa ng kape at bulaklak sa harap ng pagsikat ng araw; mensahe ng lakas mula sa Diyos, batay sa Isaias 40:29.",
+    "drive_file_id": "13Lu2MIcyf4pXh_8GxgrlqKLNOyYv2sjG",
+    "drive_view_url": "https://drive.google.com/file/d/13Lu2MIcyf4pXh_8GxgrlqKLNOyYv2sjG/view",
+    "public_delivery_url": "https://drive.google.com/uc?export=download&id=13Lu2MIcyf4pXh_8GxgrlqKLNOyYv2sjG",
+    "hosting_status": "anyone_reader_permission_verified; direct_JPEG_delivery_pending_workflow_check"
+  },
+  "bible_reference": "Isaias 40:29 (ABTAG2001)",
+  "bible_text_kind": "Tagalog paraphrase on image; not verbatim ABTAG2001 quotation",
+  "caption": "🌅 KAPAG NANGHIHINA KA, MAY DIYOS NA NAGPAPALAKAS.\n\nMay mga araw na kahit anong pagsisikap natin, nararamdaman pa rin natin ang pagod. Minsan, hindi lang katawan ang napapagod kundi pati ang puso at isipan.\n\nSa Isaias 40:29, ipinaalala sa bayan ng Diyos na Siya ang nagbibigay ng lakas sa mahihina. Ang talatang ito ay bahagi ng mensahe ng pag-asa sa Israel sa gitna ng kanilang paghihirap.\n\nHindi nito ipinapangakong mawawala agad ang lahat ng problema. Ngunit maaari tayong umasa sa Diyos habang humaharap sa mga pagsubok.\n\nNgayong araw, aminin ang iyong pagod, maglaan ng panahon sa panalangin, at gawin ang susunod na hakbang nang may pagtitiwala.\n\n🙏 Panalangin: Panginoon, alam Mo ang aking pagod at mga limitasyon. Bigyan Mo ako ng lakas, karunungan, at pagtitiis upang harapin ang araw na ito. Turuan Mo akong magtiwala sa Iyo at magpahinga kapag kinakailangan. Amen.\n\n💭 Tanong: Saang bahagi ng iyong buhay mo pinakakailangan ang lakas ng Diyos ngayon?\n\n📖 Batay sa Isaias 40:29 (ABTAG2001)\n\n#PraiseAndPeace #SalitaNgDiyos #LakasMulaSaDiyos #Pananampalataya",
+  "caption_sha256": "80e10e37f4c56f7ad2419b698737fc68b08c03da40d23a883b5f09e972e4f681",
+  "release_ready": true,
+  "qa": {
+    "user_approved_in_conversation": true,
+    "drive_permission_anyone_reader": true,
+    "public_jpeg_delivery": "pending_publisher_validation"
+  }
+}
