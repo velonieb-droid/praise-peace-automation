@@ -1,0 +1,34 @@
+{
+  "post_id": "PP-2026-11-23",
+  "status": "approved",
+  "approval_phrase": "APPROVED PP-2026-11-23",
+  "approval_date": "2026-11-23",
+  "approved_platforms": [
+    "facebook",
+    "instagram"
+  ],
+  "platform_ids": {
+    "facebook_page": "879577415240432",
+    "instagram_user": "17841479478148076"
+  },
+  "image": {
+    "sha256": "57ca976f8ff788b0ad44d5b3d94ac09c906bb50fbec2a7c7a0cae31fd96b7e3f",
+    "format": "JPEG",
+    "width": 1080,
+    "height": 1080,
+    "alt_text": "Praise & Peace: bukas na Biblia sa mesa sa tabi ng bintana at pagsikat ng araw; mensaheng Sa Gitna ng Pagsubok, batay sa Mga Awit 46:1.",
+    "drive_file_id": "127h2BIMK8cBHil37y9bvUFYscfpZbCRa",
+    "drive_view_url": "https://drive.google.com/file/d/127h2BIMK8cBHil37y9bvUFYscfpZbCRa/view",
+    "public_delivery_url": "",
+    "hosting_status": "uploaded; public anonymous JPEG delivery not verified"
+  },
+  "bible_reference": "Mga Awit 46:1 (ABTAG2001)",
+  "bible_text_kind": "Tagalog paraphrase on image; not verbatim ABTAG2001 quotation",
+  "caption": "🌅 **SA GITNA NG PAGSUBOK, MAY KANLUNGAN KA.**\n\nMay mga araw na tila sunod-sunod ang problema. May mga panahong hindi natin alam kung saan magsisimula o kung paano haharapin ang bukas.\n\nSa Mga Awit 46:1, ipinapaalala na ang Diyos ang kanlungan at kalakasan ng Kaniyang bayan. Hindi nito sinasabing hindi tayo makakaranas ng hirap. Sa halip, inaanyayahan tayong magtiwala sa Kaniya sa gitna mismo ng kaguluhan.\n\nNgayong araw, lumapit sa Diyos sa panalangin, harapin ang isang bagay sa bawat pagkakataon, at huwag mahiyang humingi ng tulong.\n\n🙏 **Panalangin:** Panginoon, kapag ako ay natatakot at nanghihina, tulungan Mo akong magtiwala sa Iyo. Bigyan Mo ako ng karunungan, katatagan, at kapayapaan habang hinaharap ko ang araw na ito. Sa pangalan ni Jesus, Amen.\n\n💭 **Pagninilay:** Anong alalahanin ang kailangan mong ipagkatiwala sa Diyos ngayon?\n\n📖 Mga Awit 46:1 | ABTAG2001 (malayang pagpapakahulugan)\n\n#PraiseAndPeace #SalitaNgDiyos #Pananampalataya #DailyDevotional",
+  "caption_sha256": "ab2e31a8161f642434c00e728539d066c328171b1fca793d9bc13e5b4dea2c49",
+  "release_ready": false,
+  "qa": {
+    "user_approved_in_conversation": true,
+    "public_jpeg_delivery": "pending_public_permission_and_validation"
+  }
+}
