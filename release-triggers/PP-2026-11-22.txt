@@ -1,3 +1,0 @@
-Approved release: PP-2026-11-22
-User authorization: APPROVED PP-2026-11-22; publish requested.
-This file triggers only the November 22 approved release through the existing GitHub Actions publisher.
